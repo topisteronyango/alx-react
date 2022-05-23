@@ -1,58 +1,50 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-	entry: './src/index.js',
-	output: {
-		filename: 'bundle.js',
-	},
-	mode: 'development',
+  // APP ENTRY POINT
+  entry: './src/index.js',
+
+  // OUTPUT DIRECTORY
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve('./dist'),
+  },
+
+	devtool: 'inline-source-map',
 	module: {
 		rules: [
 			{
 				test: /\.css$/i,
-				use: ['style-loader', 'css-loader'],
+				use: ["style-loader", "css-loader"]
 			},
 			{
 				test: /\.(png|svg|jpg|jpeg|gif)$/i,
-				// type: 'asset/resource',
 				use: [
 					'file-loader',
 					{
 						loader: 'image-webpack-loader',
 						options: {
-							bypassOnDebug: true, // webpack@1.x
-							disable: true, // webpack@2.x and newer
+							disable: true,
+							bypassOnDebug: true
 						},
 					},
 				],
 			},
 			{
 				test: /\.(js|jsx)$/,
-				exclude: /node_modules/,
-				use: ['babel-loader'],
-			},
-		],
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader"
+        },
+			}
+		]
 	},
-	resolve: {
-		alias: {
-			'react-dom': 'react-dom/profiling',
-			'schedule/tracing': 'schedule/tracing-profiling',
-		},
-	},
-	devServer: {
-		contentBase: './dist',
-		compress: true,
-		open: true,
+
+  // DEV SERVER ENTRY POINT
+  devServer: {
 		hot: true,
-		port: 8564,
-	},
-	devtool: 'inline-source-map',
-	plugins: [
-		new HtmlWebpackPlugin({
-			name: 'index.html',
-			inject: false,
-			template: './dist/index.html',
-		}),
-	],
+		compress: true,
+		static: path.resolve('./dist'),
+		historyApiFallback: true
+  },
 };

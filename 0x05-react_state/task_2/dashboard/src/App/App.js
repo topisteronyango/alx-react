@@ -1,130 +1,166 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite';
+import Header from '../Header/Header';
+import Login from '../Login/Login';
 import BodySection from '../BodySection/BodySection';
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
-import Notifications from '../Notifications/Notifications';
-import Login from '../Login/Login';
 import Footer from '../Footer/Footer';
-import Header from '../Header/Header';
 import CourseList from '../CourseList/CourseList';
+import Notifications from '../Notifications/Notifications';
 import { getLatestNotification } from '../utils/utils';
-import { AppContext, defaultUser } from './AppContext';
+import { user, logOut } from './AppContext.js';
+import AppContext from './AppContext';
+
+const listCourses = [
+  {id: 1, name: 'ES6', credit: 60},
+  {id: 2, name: 'Webpack', credit: 20},
+  {id: 3, name: 'React', credit: 40}
+];
+
+const listNotifications = [
+  {id: 1, type: 'default', value: 'New course available'},
+  {id: 2, type: 'urgent', value: 'New resume available'},
+  {id: 3, type: 'urgent', html: { __html: getLatestNotification() }}
+];
 
 class App extends React.Component {
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
+    this.keyboardKeys = this.keyboardKeys.bind(this);
+    this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this);
+    this.handleHideDrawer = this.handleHideDrawer.bind(this);
+    this.logIn = this.logIn.bind(this);
+    this.logOut = this.logOut.bind(this);
+    this.state = {
+      displayDrawer: false,
+      user: user,
+      logOut: this.logOut
+    };
+  }
 
-		this.state = {
-			displayDrawer: false,
-			user: defaultUser,
-			logOut: () => {
-				this.setState({ user: defaultUser });
-			},
-		};
+  keyboardKeys(x) {
+    if (x.key === 'h' && x.ctrlKey) {
+      alert('Logging you out');
+      this.props.logOut();
+    }
+  }
 
-		this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this);
-		this.handleHideDrawer = this.handleHideDrawer.bind(this);
-		this.logIn = this.logIn.bind(this);
-	}
+  handleDisplayDrawer() {
+    this.setState({ displayDrawer: true });
+  }
 
-	listCourses = [
-		{ id: 1, name: 'ES6', credit: 60 },
-		{ id: 2, name: 'Webpack', credit: 20 },
-		{ id: 3, name: 'React', credit: 40 },
-	];
+  handleHideDrawer() {
+    this.setState({ displayDrawer: false });
+  }
 
-	listNotifications = [
-		{ id: 1, type: 'default', value: 'New course available' },
-		{ id: 2, type: 'urgent', value: 'New resume available' },
-		{ id: 3, type: 'default', html: getLatestNotification() },
-	];
+  logIn(email, password) {
+    this.setState({
+      user: {
+        email: email,
+        password: password,
+        isLoggedIn: true
+      },
+    });
+  }
 
-	componentDidMount() {
-		document.addEventListener('keydown', (e) => {
-			if (e.ctrlKey && e.key === 'h') {
-				alert('Logging you out');
-				this.state.logOut();
-			}
-		});
-	}
+  logOut() {
+    this.setState({ user: user });
+  }
 
-	componentWillUnmount() {
-		document.removeEventListener('keydown', (e) => {
-			if (e.ctrlKey && e.key === 'h') {
-				alert('Logging you out');
-				this.state.logOut();
-			}
-		});
-	}
+  componentDidMount() {
+    document.addEventListener('keydown', this.keyboardKeys);
+  }
 
-	handleDisplayDrawer() {
-		this.setState({ displayDrawer: true });
-	}
+  componentWillUnmount() {
+    document.addEventListener('keydown', this.keyboardKeys);
+  }
 
-	handleHideDrawer() {
-		this.setState({ displayDrawer: false });
-	}
+  render() {
+    const { displayDrawer, user, logOut } = this.state;
+    const value = { user, logOut };
 
-	logIn(email, password) {
-		this.setState({
-			user: {
-				email: email,
-				password: password,
-				isLoggedIn: true,
-			},
-		});
-	}
-
-	render() {
-		const { user, logOut } = this.state;
-		return (
-			<AppContext.Provider value={{ user, logOut }}>
-				<div className={css(styles.container, styles.small)}>
-					<Header />
-					<Notifications
-						listNotifications={this.listNotifications}
-						displayDrawer={this.state.displayDrawer}
-						handleDisplayDrawer={this.handleDisplayDrawer}
-						handleHideDrawer={this.handleHideDrawer}
-					/>
-				</div>
-				<hr className={css(styles.hr)} />
-				{this.state.user.isLoggedIn ? (
-					<BodySectionWithMarginBottom>
-						<CourseList listCourses={this.listCourses} />
-					</BodySectionWithMarginBottom>
-				) : (
-					<BodySectionWithMarginBottom>
-						<Login logIn={this.logIn} />
-					</BodySectionWithMarginBottom>
-				)}
-				<BodySection title='News from the School'>
-					<p>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-						eiusmod tempor incididunt ut labore et dolore magna aliqua.{' '}
-					</p>
-				</BodySection>
-				<hr className={css(styles.hr)} />
-				<Footer />
-			</AppContext.Provider>
-		);
-	}
+    return (
+      <AppContext.Provider value={value}>
+        <Notifications
+          listNotifications={listNotifications}
+          displayDrawer={displayDrawer}
+          handleDisplayDrawer={this.handleDisplayDrawer}
+          handleHideDrawer={this.handleHideDrawer}
+        />
+        <div className={css(styles.App)}>
+          <Header />
+        </div>
+        <div className={css(styles.AppBody)}>
+          {
+            user.isLoggedIn ? (
+              <BodySectionWithMarginBottom title="Course list">
+                <CourseList listCourses={listCourses}/>
+              </BodySectionWithMarginBottom>
+            ) : (
+              <BodySectionWithMarginBottom title="Log in to continue">
+                <Login logIn ={this.logIn} />
+              </BodySectionWithMarginBottom>
+            )
+          }
+        </div>
+        <BodySection title="News from the School">
+          <p>
+            Lorem ipsum dolor sit amet, consectetur
+            adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et dolore magna
+            aliqua. Ut enim ad minim veniam, quis
+            nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis
+            aute irure dolor in reprehenderit in
+            voluptate velit esse cillum dolore eu fugiat
+            nulla pariatur. Excepteur sint occaecat
+            cupidatat non proident, sunt in culpa qui
+            officia deserunt mollit anim id est laborum.
+          </p>
+        </BodySection>
+        <div className={css(styles.AppFooter)}>
+          <Footer />
+        </div>
+      </AppContext.Provider>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-	container: {
-		display: 'flex',
-		justifyContent: 'space-between',
-	},
-	hr: {
-		borderTop: '2px solid red',
-	},
-	small: {
-		'@media (max-width: 900px)': {
-			display: 'grid',
-			justifyContent: 'center',
-		},
-	},
+  App: {
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    margin: 0,
+    padding: 0
+  },
+
+  AppBody: {
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    height: '60vh',
+    margin: 0,
+    padding: 0
+  },
+
+  AppFooter: {
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    margin: 0,
+    padding: 0,
+    height: '6vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTop: '4px solid #e1354b'
+  },
 });
+
+// App.propTypes = {
+//   isLoggedIn: PropTypes.bool,
+//   logOut: PropTypes.func
+// };
+
+// App.defaultProps = {
+//   isLoggedIn: false,
+//   logOut: () => {}
+// };
 
 export default App;
