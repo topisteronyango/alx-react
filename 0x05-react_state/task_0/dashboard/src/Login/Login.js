@@ -1,47 +1,71 @@
-import React from 'react';
-import { StyleSheet, css } from 'aphrodite';
+import  React from 'react';
+import { StyleSheet, css } from "aphrodite";
 
-const Login = () => {
+function Login() {
   return (
-    <>
-      <div className={css(styles.appBody, styles.small)}>
-        <h1>Log in to continue</h1>
-        <p>Login to access the full dashboard</p>
-        <label htmlFor="email">Email: </label>
-        <input className={css(styles.noBorder)} type="email" id="email" name="email" />
-        <label htmlFor="password">Password: </label>
-        <input className={css(styles.noBorder)} type="password" id="password" name="password" />
-        <button className={css(styles.yellowBorder)}>OK</button>
+    <React.Fragment>
+      <div className={css(styles.Login)}>
+				<p>Login to access to the full dashboard</p>
+				<div>
+					<div className={css(styles.inputGroup)}> 
+						<label htmlFor="email" >Email:</label>
+						<input id="email" type="email" className={css(styles.LoginInput)} />
+					</div>
+					<div className={css(styles.inputGroup)}>
+						<label htmlFor="password" >Password:</label>
+						<input id="password" type="password" className={css(styles.LoginInput)} />
+					</div>
+					<button className={css(styles.loginButton)}>OK</button>
+				</div>
       </div>
-    </>
+    </React.Fragment>
   );
 }
 
+const responsive = {
+	small: '@media screen and (max-width: 900px)'
+};
+
 const styles = StyleSheet.create({
-  appBody: {
-    minHeight: '50vh',
-    textAlign: 'left',
-    marginTop: '2rem',
-    marginLeft: '2rem',
-  },
-  small: {
-    '@media (max-width: 900px)': {
-      display: 'grid',
-      justifyContent: 'center',
-    }
-  },
-  noBorder: {
-    '@media (max-width: 900px)': {
-      border: 'none'
-    }
-  },
-  yellowBorder: {
-    '@media (max-width: 900px)': {
-      border: '2px solid gold',
-      backgroundColor: 'transparent',
-      width: '5vw'
-    }
-  }
-})
+	Login: {
+		fontFamily: 'Arial, Helvetica, sans-serif',
+		padding: '50px',
+		[responsive.small]: {
+			padding: 0
+		}
+	},
+
+	Loginp: {
+		top: '3rem',
+		left: '2.5rem'
+	},
+
+	Logindiv: {
+		marginLeft: '-5px',
+		marginTop: '15px'
+	},
+
+	LoginInput: {
+		margin: '5px',
+		[responsive.small]: {
+			border: 'none'
+		}
+	},
+
+	inputGroup: {
+		display: 'inline',
+		[responsive.small]: {
+			display: 'flex'
+		}
+	},
+
+	loginButton: {
+		[responsive.small]: {
+			border: '3px solid orange',
+			borderRadius: '5px',
+			
+		}
+	}
+});
 
 export default Login;
